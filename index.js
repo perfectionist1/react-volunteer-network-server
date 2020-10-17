@@ -1,14 +1,13 @@
 const  express = require('express');
 const cors = require('cors');
-const app = express();
 const bodyParser = require('body-parser');
+
+const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
 
-app.get('/', (req, res) => {
-    res.send('Hey how r u Node?');
-})
+
 
 const MongoClient = require('mongodb').MongoClient;
 const uri = "mongodb+srv://organicUser:Bangladesh331551@cluster0.plevr.mongodb.net/volunteer-network?retryWrites=true&w=majority";
@@ -16,14 +15,35 @@ const uri = "mongodb+srv://organicUser:Bangladesh331551@cluster0.plevr.mongodb.n
 
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 client.connect(err => {
-  const collection = client.db("volunteer-network").collection("helps");
-  // perform actions on the collection object
-    const volunteerHelpItems = {name: "Collect stuffed animal", pic: "stuffedAnimals.png"}
-    collection.insertOne(volunteerHelpItems)
-    .then( result => {
-        console.log('One item added successfully');
+  const volunteerDetails = client.db("volunteer-network").collection("helps");
+  
+    // const volunteerHelpItems = {name: "Collect stuffed animal", pic: "stuffedAnimals.png"}
+    // volunteers.insertOne(volunteerHelpItems)
+    // .then( result => {
+    //     console.log('One item added successfully');
+    // })
+
+    app.post('/volunteerItem', (req, res) => {
+        const volunteer = req.body;
+        volunteerDetails.insertOne(volunteer)
+        .then( result => {
+            res.send(result.insertedCount > 0)
+        })     
+        console.log(volunteer);   
     })
-  //console.log("DB connected!!");
+
+    app.get('/volunteerItem', (req, res) => {
+        volunteerDetails.find({})
+        .toArray( (err, documents) => {
+            res.send(documents);
+        })
+    })
+
+    app.get('/', (req, res) => {
+    res.send('Hey, how are you Node?');
+    })
+
+
 
   //client.close();
 });
